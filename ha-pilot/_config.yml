@@ -1,0 +1,11 @@
+# Test harness only — mirrors the parts of home-assistant.io's _config.yml the
+# bio page depends on. Not copied into home-assistant.io.
+url: https://www.home-assistant.io
+title: Home Assistant
+permalink: /blog/:year/:month/:day/:title/
+source: source
+destination: public/
+plugins_dir: plugins
+timezone: UTC
+liquid:
+  error_mode: strict
