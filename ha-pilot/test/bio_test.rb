@@ -160,6 +160,39 @@ class BioTest < Minitest::Test
     assert_equal({ 'Pinned' => ['Pinned release'] }, tiles)
   end
 
+  # -- Downloaded data (the newsletter) ---------------------------------------
+
+  NEWSLETTER = [
+    { 'title' => 'Older issue', 'url' => 'https://newsletter.example/older/',
+      'date' => '2026-09-01T09:00:00Z', 'image' => 'https://newsletter.example/older.png' },
+    { 'title' => 'Latest issue', 'url' => 'https://newsletter.example/latest/',
+      'date' => '2026-10-01T09:00:00Z', 'image' => 'https://newsletter.example/latest.png' },
+    { 'title' => '', 'url' => 'https://newsletter.example/broken/' },
+  ].freeze
+
+  def newsletter_config
+    config('sections' => [{ 'type' => 'feed', 'source' => 'newsletter', 'limit' => 1, 'images' => true }],
+           'sources' => { 'newsletter' => { 'type' => 'data', 'file' => 'newsletter' } })
+  end
+
+  def test_data_source_shows_the_newest_issue_with_its_image
+    tile = Bio.resolve(newsletter_config, POSTS, NOW, SITE, { 'newsletter' => NEWSLETTER }).first['tiles'].first
+    assert_equal 'Latest issue', tile['label']
+    assert_equal 'https://newsletter.example/latest.png', tile['image']
+    assert_equal 'October 1, 2026', tile['note']
+  end
+
+  def test_data_source_missing_or_empty_omits_the_section
+    assert_empty Bio.resolve(newsletter_config, POSTS, NOW, SITE, {})
+    assert_empty Bio.resolve(newsletter_config, POSTS, NOW, SITE, { 'newsletter' => [] })
+    assert_empty Bio.resolve(newsletter_config, POSTS, NOW, SITE, { 'newsletter' => 'not a list' })
+  end
+
+  def test_data_source_needs_a_file_name
+    cfg = config('sources' => { 'latest' => { 'type' => 'data', 'file' => '../secrets' } })
+    assert_invalid cfg, 'sources.latest.file: must name a data file'
+  end
+
   # -- Images ------------------------------------------------------------------
 
   def test_auto_image_on_internal_post_uses_its_og_image
