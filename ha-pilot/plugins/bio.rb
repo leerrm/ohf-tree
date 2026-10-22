@@ -1,5 +1,6 @@
 require 'cgi'
 require 'date'
+require 'set'
 require 'time'
 
 module Jekyll
@@ -158,14 +159,13 @@ module Jekyll
       def resolve(config, posts, now, site_url)
         sources = config['sources'] || {}
         newest_first = posts.sort_by(&:date).reverse
+        sections = config['sections'] || []
+        feed_tiles = claim_feed_items(sections, sources, newest_first, now)
 
-        (config['sections'] || []).filter_map do |section|
+        sections.each_with_index.filter_map do |section, index|
           tiles =
             if section['type'] == 'feed'
-              items = resolve_source(section['source'], sources, newest_first, now)
-              items.first(section.fetch('limit', 1)).map do |item|
-                feed_tile(item, section, newest_first, site_url)
-              end
+              feed_tiles[index].map { |item| feed_tile(item, section, newest_first, site_url) }
             else
               section['items']
                 .select { |item| in_window?(item, now) }
@@ -176,6 +176,40 @@ module Jekyll
 
           { 'title' => section['title'], 'tiles' => tiles }
         end
+      end
+
+      # On release day the release post is also the newest blog post. It should
+      # appear once, under the section that describes it best: a pin first,
+      # then a category feed such as releases, and only then the general blog,
+      # which backfills with its next post. Sections still render in YAML order.
+      def claim_feed_items(sections, sources, posts, now)
+        candidates = sections.each_with_index.filter_map do |section, index|
+          next unless section['type'] == 'feed'
+
+          items = resolve_source(section['source'], sources, posts, now)
+          [index, section, items]
+        end
+
+        claimed = Set.new
+        result = Hash.new { |hash, key| hash[key] = [] }
+        candidates
+          .sort_by { |index, _section, items| [-specificity(items, sources), index] }
+          .each do |index, section, items|
+            result[index] = items
+              .reject { |item| claimed.include?(item['url']) }
+              .first(section.fetch('limit', 1))
+              .each { |item| claimed << item['url'] }
+          end
+        result
+      end
+
+      # Which source actually produced the items: a pin may have fallen back.
+      def specificity(items, sources)
+        source = sources[items.first&.fetch('source', nil)]
+        return 0 if source.nil?
+        return 2 if source['type'] == 'pinned'
+
+        source['category'] ? 1 : 0
       end
 
       def resolve_source(name, sources, posts, now, seen = [])

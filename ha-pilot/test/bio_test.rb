@@ -120,6 +120,46 @@ class BioTest < Minitest::Test
     assert_empty Bio.resolve(cfg, POSTS, NOW, SITE)
   end
 
+  # On release day the release post is also the newest post. It belongs under
+  # "Latest release"; the blog section moves on to its next post.
+  def release_day(order)
+    posts = [POSTS[0].dup.tap { |p| p.date = Time.utc(2026, 10, 20) }, POSTS[1]]
+    sections = {
+      'blog' => { 'type' => 'feed', 'title' => 'Blog', 'source' => 'blog', 'limit' => 1 },
+      'releases' => { 'type' => 'feed', 'title' => 'Release', 'source' => 'releases', 'limit' => 1 },
+    }
+    cfg = config(
+      'sections' => order.map { |key| sections[key] },
+      'sources' => { 'blog' => { 'type' => 'posts' },
+                     'releases' => { 'type' => 'posts', 'category' => 'Release-Notes' } },
+    )
+    Bio.resolve(cfg, posts, NOW, SITE).to_h { |s| [s['title'], s['tiles'].map { |t| t['label'] }] }
+  end
+
+  def test_release_post_stays_under_releases_when_blog_is_first
+    assert_equal({ 'Blog' => ['Voice'], 'Release' => ['2026.10'] }, release_day(%w[blog releases]))
+  end
+
+  def test_release_post_stays_under_releases_when_releases_is_first
+    assert_equal({ 'Release' => ['2026.10'], 'Blog' => ['Voice'] }, release_day(%w[releases blog]))
+  end
+
+  def test_pin_outranks_a_category_feed
+    cfg = config(
+      'sections' => [
+        { 'type' => 'feed', 'title' => 'Release', 'source' => 'releases' },
+        { 'type' => 'feed', 'title' => 'Pinned', 'source' => 'latest' },
+      ],
+      'sources' => {
+        'releases' => { 'type' => 'posts', 'category' => 'Release-Notes' },
+        'latest' => { 'type' => 'pinned',
+                      'items' => [{ 'title' => 'Pinned release', 'url' => '/blog/2026/10/01/release-202610/' }] },
+      },
+    )
+    tiles = Bio.resolve(cfg, POSTS, NOW, SITE).to_h { |s| [s['title'], s['tiles'].map { |t| t['label'] }] }
+    assert_equal({ 'Pinned' => ['Pinned release'] }, tiles)
+  end
+
   # -- Images ------------------------------------------------------------------
 
   def test_auto_image_on_internal_post_uses_its_og_image
