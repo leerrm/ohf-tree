@@ -1,0 +1,31 @@
+name: ESPHome
+tagline: Your own smart home devices, configured in YAML, controlled by you
+avatar: /avatars/esphome.svg
+theme:
+  accent: "#f8961e"
+
+sections:
+  - type: feed
+    title: Latest release
+    source: esphome-releases
+    limit: 1
+
+  - type: links
+    title: Get started
+    items:
+      - label: Install ESPHome
+        url: https://esphome.io/guides/installing_esphome
+        featured: true
+      - label: Documentation
+        url: https://esphome.io
+      - label: Devices and components
+        url: https://esphome.io/components/
+
+socials:
+  - { platform: mastodon, url: https://fosstodon.org/@esphome }
+  - { platform: github, url: https://github.com/esphome }
+
+sources:
+  esphome-releases:
+    type: github-releases
+    repo: esphome/esphome

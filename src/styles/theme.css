@@ -1,0 +1,183 @@
+/*
+ * One small sheet, inlined at build. Everything themeable is a custom property
+ * so a project overrides a colour without touching a component.
+ */
+
+:root {
+  --accent: #18bcf2;
+  --bg: #ffffff;
+  --bg-tile: #f4f6f8;
+  --bg-tile-hover: #e9edf1;
+  --fg: #15202b;
+  --fg-muted: #5a6b7b;
+  --border: #dde3e9;
+  --radius: 14px;
+  --width: 34rem;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1419;
+    --bg-tile: #1b222b;
+    --bg-tile-hover: #242d38;
+    --fg: #eef3f7;
+    --fg-muted: #9aabba;
+    --border: #2b3542;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1rem 3rem;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+main {
+  width: 100%;
+  max-width: var(--width);
+  margin: 0 auto;
+}
+
+/* The page is a list of links; it should look like one to a screen reader too. */
+ul.tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.tile {
+  display: block;
+  padding: 0.9rem 1rem;
+  min-height: 44px;
+  background: var(--bg-tile);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile:hover {
+  background: var(--bg-tile-hover);
+}
+
+.tile:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tile--featured {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tile--featured .tile__note {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tile__label {
+  font-weight: 600;
+}
+
+.tile__note {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--fg-muted);
+  font-size: 0.875rem;
+}
+
+.section {
+  margin-top: 1.75rem;
+}
+
+.section__title {
+  margin: 0 0 0.6rem;
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.header__avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  margin: 0 auto 0.75rem;
+  display: block;
+}
+
+.header__name {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.header__tagline {
+  margin: 0.4rem auto 0;
+  max-width: 28rem;
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+}
+
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+
+.socials__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.socials__link:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
+.socials__link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+}
+
+.footer a {
+  color: inherit;
+}

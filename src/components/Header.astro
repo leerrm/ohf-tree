@@ -1,0 +1,27 @@
+---
+interface Props {
+  name: string;
+  tagline?: string;
+  avatar?: string;
+}
+
+const { name, tagline, avatar } = Astro.props;
+const avatarUrl = avatar ? new URL(avatar, Astro.site ?? 'http://localhost').pathname : undefined;
+---
+
+<header class="header">
+  {
+    avatarUrl && (
+      <img
+        class="header__avatar"
+        src={avatarUrl}
+        width="88"
+        height="88"
+        alt=""
+        decoding="async"
+      />
+    )
+  }
+  <h1 class="header__name">{name}</h1>
+  {tagline && <p class="header__tagline">{tagline}</p>}
+</header>

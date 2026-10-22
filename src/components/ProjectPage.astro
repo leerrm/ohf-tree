@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { resolveSource } from '../feeds/resolve.ts';
+import type { FeedItem } from '../feeds/types.ts';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Section from './Section.astro';
+import SocialRow from './SocialRow.astro';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+
+const { entry } = Astro.props;
+const project = entry.data;
+const now = new Date();
+
+// Resolve each distinct source once, in parallel. Every fetch has its own
+// ~800ms ceiling, so the page is never slower than its slowest single feed.
+const sourceNames = [
+  ...new Set(
+    project.sections.flatMap((section) => (section.type === 'feed' ? [section.source] : [])),
+  ),
+];
+
+const resolved = new Map<string, FeedItem[]>(
+  await Promise.all(
+    sourceNames.map(async (name): Promise<[string, FeedItem[]]> => [
+      name,
+      await resolveSource(name, {
+        sources: project.sources,
+        snapshotPrefix: entry.id,
+        now,
+        onWarn: (message) => console.warn(`[${entry.id}] ${message}`),
+      }),
+    ]),
+  ),
+);
+---
+
+<Base
+  title={project.name}
+  description={project.tagline}
+  accent={project.theme?.accent}
+  accentDark={project.theme?.accentDark}
+>
+  <Header name={project.name} tagline={project.tagline} avatar={project.avatar} />
+  {
+    project.sections.map((section) => (
+      <Section
+        section={section}
+        project={entry.id}
+        items={section.type === 'feed' ? resolved.get(section.source) : undefined}
+        now={now}
+      />
+    ))
+  }
+  <SocialRow socials={project.socials} project={entry.id} />
+</Base>

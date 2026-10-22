@@ -1,0 +1,23 @@
+name: Feed health
+
+# A feed that goes permanently dead degrades silently by design — the page just
+# drops that section. This is what makes sure somebody hears about it, without
+# every deploy going red over a transient blip.
+on:
+  schedule:
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: node scripts/snapshot.mjs --strict
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

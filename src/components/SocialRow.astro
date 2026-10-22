@@ -1,0 +1,47 @@
+---
+import type { Social } from '../content/schema.ts';
+
+interface Props {
+  socials: Social[];
+  project: string;
+}
+
+const { socials, project } = Astro.props;
+
+const names: Record<Social['platform'], string> = {
+  mastodon: 'Mastodon',
+  instagram: 'Instagram',
+  github: 'GitHub',
+  youtube: 'YouTube',
+  discord: 'Discord',
+  reddit: 'Reddit',
+  x: 'X',
+  linkedin: 'LinkedIn',
+  bluesky: 'Bluesky',
+  facebook: 'Facebook',
+  tiktok: 'TikTok',
+  threads: 'Threads',
+  rss: 'RSS',
+  web: 'Website',
+};
+---
+
+{
+  socials.length > 0 && (
+    <nav class="socials" aria-label="Elsewhere">
+      {socials.map((social) => (
+        <a
+          class="socials__link"
+          href={social.url}
+          rel="noopener"
+          data-project={project}
+          data-section="socials"
+          data-source="curated"
+          data-label={social.platform}
+        >
+          {social.label ?? names[social.platform]}
+        </a>
+      ))}
+    </nav>
+  )
+}

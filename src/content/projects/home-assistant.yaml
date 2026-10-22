@@ -1,0 +1,45 @@
+name: Home Assistant
+tagline: Open source home automation that puts local control and privacy first
+avatar: /avatars/home-assistant.svg
+theme:
+  accent: "#03a9f4"
+
+sections:
+  - type: feed
+    title: Latest from the blog
+    source: ha-latest
+    limit: 2
+
+  - type: feed
+    title: Latest release
+    source: ha-releases
+    limit: 1
+
+  - type: links
+    title: Get started
+    items:
+      - label: Install Home Assistant
+        url: https://www.home-assistant.io/installation/
+        featured: true
+      - label: Documentation
+        url: https://www.home-assistant.io/docs/
+      - label: Community forum
+        url: https://community.home-assistant.io
+
+socials:
+  - { platform: mastodon, url: https://fosstodon.org/@homeassistant }
+  - { platform: instagram, url: https://www.instagram.com/homeassistant }
+  - { platform: github, url: https://github.com/home-assistant }
+  - { platform: youtube, url: https://www.youtube.com/@HomeAssistant }
+
+sources:
+  ha-blog:
+    type: rss
+    url: https://www.home-assistant.io/atom.xml
+  ha-releases:
+    type: github-releases
+    repo: home-assistant/core
+  ha-latest:
+    type: pinned
+    items: []
+    fallback: ha-blog

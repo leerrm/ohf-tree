@@ -1,0 +1,34 @@
+---
+/**
+ * The link primitive. Every outbound click on the site goes through here, which
+ * is what makes analytics a one-file change later: the data-* attributes below
+ * are the event properties, named now and populated on every tile.
+ */
+interface Props {
+  label: string;
+  url: string;
+  note?: string;
+  featured?: boolean;
+  project: string;
+  section: string;
+  /** 'curated' for hand-written links, otherwise the source name. */
+  source: string;
+}
+
+const { label, url, note, featured = false, project, section, source } = Astro.props;
+---
+
+<li>
+  <a
+    class:list={['tile', { 'tile--featured': featured }]}
+    href={url}
+    rel="noopener"
+    data-project={project}
+    data-section={section}
+    data-source={source}
+    data-label={label}
+  >
+    <span class="tile__label">{label}</span>
+    {note && <span class="tile__note">{note}</span>}
+  </a>
+</li>

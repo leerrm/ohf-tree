@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectPage from '../components/ProjectPage.astro';
+import { cacheAtEdge } from '../lib/cache.ts';
+
+// Rendered per request so a blog post published minutes before the social goes
+// out is live here, then edge-cached for 60s — so this runs about once a
+// minute, not once per visitor.
+export const prerender = false;
+
+const projects = await getCollection('projects');
+const entry = projects.find((candidate) => candidate.id === Astro.params.project);
+
+if (!entry) {
+  return new Response('Not found', { status: 404 });
+}
+
+cacheAtEdge(Astro.response.headers);
+---
+
+<ProjectPage entry={entry} />

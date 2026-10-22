@@ -1,0 +1,42 @@
+---
+import Analytics from '../components/Analytics.astro';
+import '../styles/theme.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  accent?: string;
+  accentDark?: string;
+}
+
+const { title, description, accent, accentDark } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical.href} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical.href} />
+    <meta name="twitter:card" content="summary" />
+    {accent && <meta name="theme-color" content={accent} />}
+    {
+      accent && (
+        <style set:html={`:root{--accent:${accent}}@media (prefers-color-scheme:dark){:root{--accent:${accentDark ?? accent}}}`} />
+      )
+    }
+    <Analytics />
+  </head>
+  <body>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

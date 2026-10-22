@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectPage from '../components/ProjectPage.astro';
+import { cacheAtEdge } from '../lib/cache.ts';
+
+export const prerender = false;
+
+// The root is the OHF page itself, not an index of the others — it is what the
+// foundation's own bio links to.
+const projects = await getCollection('projects');
+const entry = projects.find((candidate) => candidate.id === 'ohf');
+
+if (!entry) {
+  throw new Error('src/content/projects/ohf.yaml is required: it is the root route.');
+}
+
+cacheAtEdge(Astro.response.headers);
+---
+
+<ProjectPage entry={entry} />

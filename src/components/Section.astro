@@ -1,0 +1,76 @@
+---
+import type { Section } from '../content/schema.ts';
+import type { FeedItem } from '../feeds/types.ts';
+import LinkTile from './LinkTile.astro';
+
+interface Props {
+  section: Section;
+  project: string;
+  /** Pre-resolved items, for a feed section. */
+  items?: FeedItem[];
+  now: Date;
+}
+
+const { section, project, items = [], now } = Astro.props;
+const title = section.title;
+
+/** A scheduled tile simply does not exist outside its window. */
+const inWindow = (item: { starts?: Date; ends?: Date }) =>
+  (!item.starts || item.starts <= now) && (!item.ends || item.ends > now);
+
+const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+
+type Tile = { label: string; url: string; note?: string; featured: boolean; source: string };
+
+let tiles: Tile[] = [];
+
+if (section.type === 'links') {
+  tiles = section.items.filter(inWindow).map((item) => ({
+    label: item.label,
+    url: item.url,
+    note: item.note,
+    featured: item.featured,
+    source: 'curated',
+  }));
+} else if (items.length > 0) {
+  tiles = items.slice(0, section.limit).map((item) => ({
+    label: item.title,
+    url: item.url,
+    note: item.date ? dateFormat.format(item.date) : item.excerpt,
+    featured: false,
+    source: section.source,
+  }));
+} else if (section.fallback) {
+  // Live result → snapshot → curated fallback. Only then do we give up.
+  tiles = section.fallback.filter(inWindow).map((item) => ({
+    label: item.label,
+    url: item.url,
+    note: item.note,
+    featured: item.featured,
+    source: 'fallback',
+  }));
+}
+---
+
+{
+  /* An empty section would render as a heading above nothing, which reads as
+     broken. Omit it instead. */
+  tiles.length > 0 && (
+    <section class="section">
+      {title && <h2 class="section__title">{title}</h2>}
+      <ul class="tiles">
+        {tiles.map((tile) => (
+          <LinkTile
+            label={tile.label}
+            url={tile.url}
+            note={tile.note}
+            featured={tile.featured}
+            project={project}
+            section={title ?? section.type}
+            source={tile.source}
+          />
+        ))}
+      </ul>
+    </section>
+  )
+}

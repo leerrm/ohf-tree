@@ -1,0 +1,48 @@
+name: Open Home Foundation
+tagline: Privacy, choice and sustainability for the smart home
+avatar: /avatars/ohf.svg
+theme:
+  accent: "#18bcf2"
+
+sections:
+  - type: feed
+    title: Latest news
+    source: ohf-latest
+    limit: 2
+
+  - type: links
+    title: Our projects
+    items:
+      - label: Home Assistant
+        url: https://www.home-assistant.io
+        note: Open source home automation
+      - label: ESPHome
+        url: https://esphome.io
+        note: Firmware for your own devices
+      - label: Music Assistant
+        url: https://www.music-assistant.io
+        note: One library, every speaker
+
+  - type: links
+    title: Get involved
+    items:
+      - label: Support the foundation
+        url: https://www.openhomefoundation.org/donate/
+        featured: true
+      - label: About the Open Home Foundation
+        url: https://www.openhomefoundation.org/about/
+
+socials:
+  - { platform: mastodon, url: https://fosstodon.org/@openhomefoundation }
+  - { platform: github, url: https://github.com/OpenHomeFoundation }
+  - { platform: web, url: https://www.openhomefoundation.org, label: openhomefoundation.org }
+
+sources:
+  ohf-blog:
+    type: rss
+    url: https://www.openhomefoundation.org/blog/rss.xml
+  # A pin takes over when timing has to be exact, then hands back to the blog.
+  ohf-latest:
+    type: pinned
+    items: []
+    fallback: ohf-blog

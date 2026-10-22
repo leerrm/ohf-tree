@@ -1,0 +1,29 @@
+name: Music Assistant
+tagline: One music library, every speaker in your home
+avatar: /avatars/music-assistant.svg
+theme:
+  accent: "#9d53f2"
+
+sections:
+  - type: feed
+    title: Latest release
+    source: ma-releases
+    limit: 1
+
+  - type: links
+    title: Get started
+    items:
+      - label: Install Music Assistant
+        url: https://www.music-assistant.io/installation/
+        featured: true
+      - label: Documentation
+        url: https://www.music-assistant.io
+
+socials:
+  - { platform: github, url: https://github.com/music-assistant }
+  - { platform: discord, url: https://discord.gg/kaVm8hGpne }
+
+sources:
+  ma-releases:
+    type: github-releases
+    repo: music-assistant/server

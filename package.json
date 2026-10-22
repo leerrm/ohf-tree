@@ -1,0 +1,32 @@
+{
+  "name": "ohf-tree",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-first link-in-bio pages for the Open Home Foundation and its projects",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "snapshot": "node scripts/snapshot.mjs",
+    "prebuild": "node scripts/snapshot.mjs",
+    "predev": "node scripts/snapshot.mjs",
+    "prepare": "astro sync",
+    "test": "node --test 'test/**/*.test.ts'"
+  },
+  "dependencies": {
+    "@astrojs/netlify": "^8.2.10",
+    "astro": "^7.4.2",
+    "fast-xml-parser": "^5.2.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3",
+    "yaml": "^2.9.1"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}
