@@ -44,7 +44,7 @@ const resolved = new Map<string, FeedItem[]>(
   accent={project.theme?.accent}
   accentDark={project.theme?.accentDark}
 >
-  <Header name={project.name} tagline={project.tagline} avatar={project.avatar} />
+  <Header name={project.name} tagline={project.tagline} avatar={project.avatar} logo={project.logo} />
   {
     project.sections.map((section) => (
       <Section

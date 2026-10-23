@@ -132,6 +132,13 @@ ul.tiles {
   line-height: 1.2;
 }
 
+.header__logo {
+  display: block;
+  width: min(100%, 16rem);
+  height: auto;
+  margin: 0 auto;
+}
+
 .header__tagline {
   margin: 0.4rem auto 0;
   max-width: 28rem;

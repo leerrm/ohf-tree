@@ -1,6 +1,8 @@
 name: Home Assistant
 tagline: Open source home automation that puts local control and privacy first
-avatar: /avatars/home-assistant.svg
+logo:
+  light: /logos/home-assistant.svg
+  dark: /logos/home-assistant-dark.svg
 theme:
   accent: "#03a9f4"
 

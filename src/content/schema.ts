@@ -101,12 +101,19 @@ const social = z.object({
   label: z.string().optional(),
 });
 
+/** Path under /public, e.g. /avatars/home-assistant.svg */
+const publicPath = z.string().regex(/^\//, 'Must be a path under /public, e.g. /avatars/foo.svg');
+
 export const projectSchema = z
   .object({
     name: z.string(),
     tagline: z.string().optional(),
-    /** Path under /public, e.g. /avatars/home-assistant.svg */
-    avatar: z.string().regex(/^\//, 'Must be a path under /public, e.g. /avatars/foo.svg').optional(),
+    avatar: publicPath.optional(),
+    /**
+     * The project's official logo lockup. Replaces the avatar and the name in
+     * the header; `dark` is swapped in when the visitor uses a dark theme.
+     */
+    logo: z.object({ light: publicPath, dark: publicPath.optional() }).optional(),
     theme: z
       .object({
         accent: z.string(),
