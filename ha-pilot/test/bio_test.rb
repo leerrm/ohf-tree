@@ -265,6 +265,39 @@ class BioTest < Minitest::Test
     assert_invalid cfg, 'sources.newsletter.limit: must be a whole number from 1 to 10'
   end
 
+  # -- Inserted items --------------------------------------------------------
+
+  def test_inserted_item_takes_its_place_by_date
+    cfg = merged_config('limit' => 10, 'insert' => [
+      { 'title' => 'Community Day', 'url' => 'https://example.test/day/', 'date' => '2026-10-10', 'label' => 'Event' },
+    ])
+    assert_equal [['Voice', 'Blog · October 14, 2026'],
+                  ['Community Day', 'Event · October 10, 2026'],
+                  ['Latest issue', 'Newsletter · October 1, 2026'],
+                  ['2026.10', 'Blog · October 1, 2026']],
+                 merged(cfg)
+  end
+
+  def test_newest_inserted_item_becomes_the_hero
+    cfg = merged_config('hero' => true, 'insert' => [
+      { 'title' => 'Launch', 'url' => 'https://example.test/launch/', 'date' => '2026-10-20', 'image' => 'auto' },
+    ])
+    tile = Bio.resolve(cfg, POSTS, NOW, SITE, { 'newsletter' => NEWSLETTER }).first['tiles'].first
+    assert_equal 'Launch', tile['label']
+    assert tile['hero']
+    assert_includes tile['image'], 'assets.openhomefoundation.org/opengraph'
+  end
+
+  def test_inserted_item_needs_a_date
+    cfg = merged_config('insert' => [{ 'title' => 'Undated', 'url' => '/x/' }])
+    assert_invalid cfg, 'sections[0].insert[0].date: is required'
+  end
+
+  def test_inserted_item_needs_a_valid_date
+    cfg = merged_config('insert' => [{ 'title' => 'Bad', 'url' => '/x/', 'date' => '10/11/2026' }])
+    assert_invalid cfg, 'sections[0].insert[0].date: "10/11/2026" is not a date'
+  end
+
   # -- Hero card -------------------------------------------------------------
 
   def hero_tiles(section_overrides = {}, source_overrides = {}, data = { 'newsletter' => NEWSLETTER })
