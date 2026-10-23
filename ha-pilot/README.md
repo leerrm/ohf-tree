@@ -1,5 +1,11 @@
 # Bio page for home-assistant.io
 
+> **Superseded.** The bio page now lives on the `bio-page` branch of
+> `leerrm/home-assistant.io`, built with Astro (`astro/src/pages/bio/`,
+> `astro/src/lib/bio.mjs`). The Jekyll files below are kept for reference only
+> and are no longer kept in sync.
+
+
 The files for a link-in-bio page at `https://www.home-assistant.io/bio/`, built
 natively in the site's Jekyll setup. Destined for `home-assistant/home-assistant.io`.
 
