@@ -265,6 +265,38 @@ class BioTest < Minitest::Test
     assert_invalid cfg, 'sources.newsletter.limit: must be a whole number from 1 to 10'
   end
 
+  # -- Hero card -------------------------------------------------------------
+
+  def hero_tiles(section_overrides = {}, source_overrides = {}, data = { 'newsletter' => NEWSLETTER })
+    cfg = merged_config({ 'hero' => true }.merge(section_overrides), source_overrides)
+    Bio.validate!(cfg)
+    Bio.resolve(cfg, POSTS, NOW, SITE, data).first['tiles']
+  end
+
+  def test_first_item_becomes_the_hero_with_its_image
+    tiles = hero_tiles
+    assert tiles.first['hero']
+    assert_equal '/images/voice.jpg', tiles.first['image']
+    refute tiles[1]['hero']
+  end
+
+  def test_hero_gets_its_image_even_when_the_section_has_no_thumbnails
+    tiles = hero_tiles('images' => false)
+    assert tiles.first['hero']
+    assert_nil tiles[1]['image']
+  end
+
+  def test_first_item_without_an_image_stays_a_normal_tile
+    pin = { 'type' => 'pinned', 'items' => [{ 'title' => 'No picture', 'url' => '/launch/' }] }
+    tiles = hero_tiles({}, 'pinned' => pin)
+    assert_equal 'No picture', tiles.first['label']
+    refute tiles.first['hero']
+  end
+
+  def test_hero_must_be_true_or_false
+    assert_invalid merged_config('hero' => 'yes'), 'sections[0].hero: must be true or false'
+  end
+
   # -- Images ------------------------------------------------------------------
 
   def test_auto_image_on_internal_post_uses_its_og_image
