@@ -193,6 +193,78 @@ class BioTest < Minitest::Test
     assert_invalid cfg, 'sources.latest.file: must name a data file'
   end
 
+  # -- Merged lists ------------------------------------------------------------
+
+  def merged_config(section_overrides = {}, source_overrides = {})
+    {
+      'sections' => [{ 'type' => 'feed', 'title' => 'Latest',
+                       'sources' => %w[pinned blog newsletter], 'limit' => 3 }.merge(section_overrides)],
+      'sources' => {
+        'pinned' => { 'type' => 'pinned', 'items' => [] },
+        'blog' => { 'type' => 'posts', 'label' => 'Blog' },
+        'newsletter' => { 'type' => 'data', 'file' => 'newsletter', 'label' => 'Newsletter', 'limit' => 1 },
+      }.merge(source_overrides),
+    }
+  end
+
+  def merged(cfg, data = { 'newsletter' => NEWSLETTER })
+    Bio.validate!(cfg)
+    Bio.resolve(cfg, POSTS, NOW, SITE, data).first['tiles'].map { |t| [t['label'], t['note']] }
+  end
+
+  def test_merged_list_is_newest_first_across_feeds
+    assert_equal [['Voice', 'Blog · October 14, 2026'],
+                  ['Latest issue', 'Newsletter · October 1, 2026'],
+                  ['2026.10', 'Blog · October 1, 2026']],
+                 merged(merged_config)
+  end
+
+  def test_source_limit_caps_its_items
+    # Two newsletter issues exist; the source allows one.
+    labels = merged(merged_config('limit' => 10)).map(&:first)
+    assert_equal ['Voice', 'Latest issue', '2026.10'], labels
+  end
+
+  def test_pin_goes_first_and_the_feeds_continue_below
+    cfg = merged_config({}, 'pinned' => { 'type' => 'pinned',
+                                           'items' => [{ 'title' => 'Launch', 'url' => '/launch/' }] })
+    assert_equal ['Launch', 'Voice', 'Latest issue'], merged(cfg).map(&:first)
+  end
+
+  def test_pinned_post_is_not_repeated_from_the_blog
+    cfg = merged_config({}, 'pinned' => { 'type' => 'pinned',
+                                           'items' => [{ 'title' => 'Voice', 'url' => '/blog/2026/10/14/voice/' }] })
+    assert_equal ['Voice', 'Latest issue', '2026.10'], merged(cfg).map(&:first)
+  end
+
+  def test_exclude_category
+    cfg = merged_config({}, 'blog' => { 'type' => 'posts', 'label' => 'Blog', 'exclude_category' => 'Release-Notes' })
+    assert_equal ['Voice', 'Latest issue'], merged(cfg).map(&:first)
+  end
+
+  def test_missing_newsletter_leaves_the_blog
+    assert_equal ['Voice', '2026.10'], merged(merged_config, {}).map(&:first)
+  end
+
+  def test_section_needs_source_or_sources_not_both
+    cfg = merged_config('source' => 'blog')
+    assert_invalid cfg, 'sections[0]: needs either source'
+  end
+
+  def test_unknown_name_in_sources_list
+    assert_invalid merged_config('sources' => %w[blog newletter]), 'sections[0].sources: unknown source "newletter"'
+  end
+
+  def test_exclude_category_only_on_posts
+    cfg = merged_config({}, 'newsletter' => { 'type' => 'data', 'file' => 'newsletter', 'exclude_category' => 'x' })
+    assert_invalid cfg, 'sources.newsletter.exclude_category: only works on sources of type posts'
+  end
+
+  def test_source_limit_must_be_sensible
+    cfg = merged_config({}, 'newsletter' => { 'type' => 'data', 'file' => 'newsletter', 'limit' => 0 })
+    assert_invalid cfg, 'sources.newsletter.limit: must be a whole number from 1 to 10'
+  end
+
   # -- Images ------------------------------------------------------------------
 
   def test_auto_image_on_internal_post_uses_its_og_image
